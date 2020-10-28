@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:radiostring/blocs/config.dart';
+import 'home.dart';
 import 'package:radiostring/blocs/station_bloc.dart';
 import 'package:radiostring/models/channel.dart';
 
@@ -22,7 +23,9 @@ class _AllChannelsState extends State<AllChannels> {
   void initState() {
     super.initState();
     _controller = ScrollController();
+
     _controller.addListener(_scrollListener);
+
   }
 
   _scrollListener() async {
@@ -65,7 +68,7 @@ class _AllChannelsState extends State<AllChannels> {
                     padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
                     child: Card(
                       margin: EdgeInsets.only(bottom: 5.0),
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       child: Container(
                         padding: EdgeInsets.all(10.0),
                         child: Row(
@@ -88,12 +91,12 @@ class _AllChannelsState extends State<AllChannels> {
                                 width: screenSize.width * 0.1,
                                 child: CircleAvatar(
                                   radius: screenSize.width / 20,
-                                  backgroundColor: Theme.of(context).buttonColor,
+                                  backgroundColor: Colors.green,
                                   child: CircleAvatar(
-                                    backgroundColor: Colors.white,
+                                    backgroundColor: Theme.of(context).buttonColor,
                                     radius: screenSize.width / 22,
                                     child: stationsBloc.isPlaying && _stations[index].id == stationsBloc.currentPlayingStation.id ? 
-                                     Icon(Icons.pause, color: Theme.of(context).buttonColor, size: screenSize.width / 20): 
+                                     Icon(Icons.pause, color: Theme.of(context).iconTheme.color, size: screenSize.width / 20):
                                      SvgPicture.asset('assets/images/play-button.svg'),
                                   ),
                                 )
@@ -110,7 +113,7 @@ class _AllChannelsState extends State<AllChannels> {
                                         fontSize: screenSize.width / 25,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Jost-Regular',
-                                        color: Color.fromRGBO(24, 35, 82, 1)
+                                        // color: Color.fromRGBO(24, 35, 82, 1)
                                       ),
                                     ),
                                   ),
@@ -125,19 +128,40 @@ class _AllChannelsState extends State<AllChannels> {
                                 ],
                               ),
                             ),
+                            // SizedBox(width: screenSize.width * 0.1),
                             Container(
-                              width: screenSize.width * 0.1,
-                              child: GestureDetector(
-                                onTap: (){
-                                  setState(() {
-                                    _stations[index].isFavourite = !_stations[index].isFavourite;
-                                  });
-                                  stationsBloc.updateFavourites(_stations[index]);
-                                },
-                                child: Image.asset(_stations[index].isFavourite ? 'assets/images/favourite.png': 'assets/images/unfavourite.png',
-                                  height: screenSize.width / 20,
-                                  color: Color.fromRGBO(137, 149, 183, 1)
-                                ),
+                              width: screenSize.width * 0.15,
+                              child: Row(
+                                children: [
+                                  stationsBloc.isPlaying && _stations[index].id == stationsBloc.currentPlayingStation.id ?Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 0,10,0),
+                                    child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15.0),
+                                        child: ColorFiltered(child: Image.asset('assets/images/musicEQ.gif',
+                                          height: screenSize.height / 40,
+                                          width: screenSize.width / 15,
+                                          fit: BoxFit.cover,
+                                          filterQuality: FilterQuality.low, ),
+                                          colorFilter: ColorFilter.mode(Colors.pink[300], BlendMode.modulate),
+                                        )
+                                    ),
+                                  ):Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 0, 10,0),
+                                    child: SizedBox(width: screenSize.width / 15),
+                                  ),
+                                  GestureDetector(
+                                    onTap: (){
+                                      setState(() {
+                                        _stations[index].isFavourite = !_stations[index].isFavourite;
+                                      });
+                                      stationsBloc.updateFavourites(_stations[index]);
+                                    },
+                                    child: Image.asset(_stations[index].isFavourite ? 'assets/images/favourite.png': 'assets/images/unfavourite.png',
+                                      height: screenSize.width / 20,
+                                      color: Color.fromRGBO(137, 149, 183, 1)
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
                           ],

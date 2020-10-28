@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:radiostring/utils/utils.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_audio_stream/url_audio_stream.dart';
@@ -7,6 +8,8 @@ import 'package:url_audio_stream/url_audio_stream.dart';
 import 'package:radiostring/models/channel.dart';
 import 'package:radiostring/models/country.dart';
 import 'package:radiostring/services/radiostring_services.dart';
+
+import 'config.dart';
 
 class StationsBloc {
   List<Station> _allStations = [];
@@ -83,7 +86,7 @@ class StationsBloc {
 
   getCountries() async{
     await RadioStringService().getCountries().then((response) {
-      var _allCountries = (json.decode(response.body))['data'];
+      var _allCountries = (json.decode(utf8.decode(response.bodyBytes)))['data'];
       for(var country in _allCountries){
         _countries.add(Country.fromJson(country));
       }
@@ -98,8 +101,8 @@ class StationsBloc {
     _allStationIds.clear();
     _isLoading = true;
     await RadioStringService().getStations().then((response) {
-      var _stations = (json.decode(response.body))['data'];
-      _nextService = (json.decode(response.body))['next'];
+      var _stations = (json.decode(utf8.decode(response.bodyBytes)))['data'];
+      _nextService = (json.decode(utf8.decode(response.bodyBytes)))['next'];
       for(var station in _stations){
         Station _station = Station.fromJson(station);
         if(_favouriteStationIds.length > 0 && _favouriteStationIds.contains(_station.id)){
@@ -120,8 +123,8 @@ class StationsBloc {
 
   getNextStations() async{
     await RadioStringService().getNextStations(_nextService).then((response) {
-      var _stations = (json.decode(response.body))['data'];
-      _nextService = (json.decode(response.body))['next'];
+      var _stations = (json.decode(utf8.decode(response.bodyBytes)))['data'];
+      _nextService = (json.decode(utf8.decode(response.bodyBytes)))['next'];
       for(var station in _stations){
         Station _station = Station.fromJson(station);
         if(_favouriteStationIds.length > 0 && _favouriteStationIds.contains(_station.id)){
@@ -150,6 +153,17 @@ class StationsBloc {
       _favouriteStations.add(Station.fromJson(_station));
     }
     _stationsFetcher.sink.add(stationsBloc);
+  }
+
+  updateThemeSwitch(value) async{
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    // print('Value : $value');
+    print('isSwitched before : $isSwitched');
+    currentTheme.switchTheme();
+    isSwitched = !isSwitched;
+    // isSwitched=value;
+    print('isSwitched after : $isSwitched');
+    preferences.setBool('theme_switch', value);
   }
 
   updateFavourites(Station station) async{
@@ -181,8 +195,8 @@ class StationsBloc {
     _allStationIds.clear();
     _isLoading = true;
     await RadioStringService().getCountryStations(id).then((response) {
-      var _stations = (json.decode(response.body))['results'];
-      _nextService = (json.decode(response.body))['next'];
+      var _stations = (json.decode(utf8.decode(response.bodyBytes)))['results'];
+      _nextService = (json.decode(utf8.decode(response.bodyBytes)))['next'];
       for(var station in _stations){
         Station _station = Station.fromJson(station);
         if(_favouriteStationIds.length > 0 && _favouriteStationIds.contains(_station.id)){

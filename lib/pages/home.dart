@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flushbar/flushbar.dart';
-
+import 'package:radiostring/blocs/config.dart';
 import 'package:radiostring/blocs/station_bloc.dart';
 import 'package:radiostring/models/country.dart';
+import 'package:radiostring/utils/utils.dart';
+import 'package:radiostring/widgets/buildSideMenu.dart';
 import 'all_channels.dart';
 import 'favourite_channels.dart';
 
@@ -16,11 +18,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final TextEditingController _searchController = new TextEditingController();
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+  final TextEditingController searchController = new TextEditingController();
   var screenSize;
   String channelType = 'all';
-  bool _isSearching = false;
+  // bool isSearching = false;
 
   List<Country> _countries= [] ;
 
@@ -42,9 +44,9 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void showNoInternet(BuildContext context, String error_content) {
+  void showNoInternet(BuildContext context, String errorContent) {
     Flushbar(
-      messageText: Text(error_content,
+      messageText: Text(errorContent,
         style: TextStyle(
           fontFamily: 'Jost-Regular',
           color: Colors.white
@@ -73,99 +75,35 @@ class _HomeState extends State<Home> {
   }
 
   void _openEndDrawer() {
-    _scaffoldKey.currentState.openEndDrawer();
+    scaffoldKey.currentState.openEndDrawer();
   }
 
-  Widget _builsAppBar() {
-    return Container(
-      padding: EdgeInsets.only(top: screenSize.height * 0.05, bottom: screenSize.height * 0.02),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: (){
-                        _scaffoldKey.currentState.openDrawer();
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: screenSize.width / 20),
-                        child: Image.asset('assets/images/sidebar.png',
-                        width: screenSize.width / 22)
-                      ),
-                    ),
-                    Container(
-                      child: Text('Radio String',
-                      style: TextStyle(
-                        fontFamily: 'Jost-Medium',
-                        fontSize: screenSize.width / 22
-                      ),),
-                    )
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isSearching = !_isSearching;
-                  });
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.0),
-                  child: !_isSearching ? SvgPicture.asset('assets/images/search.svg',
-                  width: screenSize.width / 15):
-                  Icon(Icons.close, color: Color.fromRGBO(203, 203, 203, 1))
-                ),
-              )
-            ],
-          ),
-          _isSearching ? Container(
-            margin: EdgeInsets.only(top: 5.0),
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(
-              color: Color.fromRGBO(243, 243, 244, 1),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15.0),
-                      height: screenSize.height * 0.06,
-                      child: TextFormField(
-                        autofocus: true,
-                        cursorColor: Colors.black,
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Search by Name',
-                          hintStyle: TextStyle(
-                            fontFamily: 'Jost-Regular'
-                          ),
-                        ),
-                        onChanged: (val){
-                          
-                        },
-                      ),
-                    )
-                  ),
-                  Container(
-                    width: screenSize.width * 0.10,
-                    height: screenSize.height * 0.06,
-                    color: Theme.of(context).buttonColor,
-                    child: SvgPicture.asset('assets/images/search.svg',
-                    fit: BoxFit.none,
-                    color: Colors.white),
-                  )
-                ],
-              ),
-            )
-          ): Container()
-        ],
-      ),
+  Widget myappBar(){
+    return AppBar(
+      iconTheme: Theme.of(context).iconTheme,
+      title: Text('Radio String', style: TextStyle(color: Theme.of(context).colorScheme.primary),),
+      backgroundColor: Theme.of(context).backgroundColor,
+      actions: [
+        GestureDetector(
+            onTap: (){
+              setState(() {
+                print(isSearching);
+                isSearching = !isSearching;
+                print(isSearching);
+              });
+            },
+            child: !isSearching ? Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Icon(Icons.search),
+            ):Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Icon(Icons.close),
+            ))
+      ],
+      // automaticallyImplyLeading: false,
     );
   }
+
 
   Widget _buildTabBar() {
     return Container(
@@ -254,10 +192,11 @@ class _HomeState extends State<Home> {
             width: screenSize.width * 0.14,
             child: GestureDetector(
               onTap: _openEndDrawer,
-              child: SvgPicture.asset('assets/images/filters.svg',
-                width: screenSize.width / 22,
-                color: Colors.black
-              ),
+              child: Icon(Icons.view_sidebar_outlined)
+              // SvgPicture.asset('assets/images/filters.svg',
+              //   width: screenSize.width / 22,
+              //   color: Colors.black
+              // ),
             )
           ),
         ],
@@ -266,132 +205,18 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBody(BuildContext context, AsyncSnapshot<StationsBloc> snapshot) {
+
     return Container(
       child: channelType == 'all' ?
         AllChannels(snapshot): FavouriteChannels(snapshot),
     );
   }
 
-  Widget _buildSideMenu(context, AsyncSnapshot<StationsBloc> snapshot) {
-    return Container(
-      color: Colors.white,
-      child: Container(
-        margin: EdgeInsets.only(top: screenSize.height * 0.05),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            Container(
-              height: screenSize.height * 0.06,
-              child: ListTile(
-                title: Text('Home',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium'
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.06,
-              child: ListTile(
-                title: Text('About Us',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium'
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.06,
-              child: ListTile(
-                title: Text('Privacy Policy',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium'
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.06,
-              child: ListTile(
-                title: Text('Terms & Conditions',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium'
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.06,
-              margin: EdgeInsets.only(bottom: 10.0),
-              child: ListTile(
-                title: Text('Contact Us',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium'
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.07,
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Color.fromRGBO(59, 89, 152, 1),
-                  radius: screenSize.height / 40,
-                  child: Image.asset('assets/images/facebook.png',
-                  color: Colors.white, height: screenSize.height / 45),
-                ),
-                title: Text('Facebook',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium',
-                  color: Color.fromRGBO(59, 89, 152, 1)
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.07,
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Color.fromRGBO(29, 161, 242, 1),
-                  radius: screenSize.height / 40,
-                  child: Image.asset('assets/images/twitter.png',
-                  color: Colors.white, height: screenSize.height / 45),
-                ),
-                title: Text('Twitter',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium',
-                  color: Color.fromRGBO(29, 161, 242, 1)
-                )),
-                onTap: () => {},
-              ),
-            ),
-            Container(
-              height: screenSize.height * 0.07,
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Color.fromRGBO(244, 67, 54, 1),
-                  radius: screenSize.height / 40,
-                  child: Image.asset('assets/images/google.png',
-                  color: Colors.white, height: screenSize.height / 45),
-                ),
-                title: Text('Google',
-                style: TextStyle(
-                  fontFamily: 'Jost-Medium',
-                  color: Color.fromRGBO(244, 67, 54, 1)
-                )),
-                onTap: () => {},
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildEndDrawer(context, AsyncSnapshot<StationsBloc> snapshot) {
       _countries = stationsBloc.countries;
       return Container(
-        color: Colors.white,
+        color: Theme.of(context).backgroundColor,
         child: Container(
           child: Column(
             children: [
@@ -456,8 +281,8 @@ class _HomeState extends State<Home> {
                                 child: Text(_countries[index].name,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: stationsBloc.filteredCountryId == _countries[index].id ? 
-                                            Theme.of(context).buttonColor: Colors.black,
+                                    color: stationsBloc.filteredCountryId == _countries[index].id ?
+                                            Theme.of(context).buttonColor: Color.fromRGBO(124, 138, 175, 1),
                                     fontFamily: 'Jost-Regular',
                                     fontSize: screenSize.width / 23
                                   ),
@@ -590,7 +415,7 @@ class _HomeState extends State<Home> {
                         width: 1.0
                       ),
                       borderRadius: BorderRadius.all(
-                          Radius.circular(5.0)  
+                          Radius.circular(5.0)
                       ),
                     ),
                     child: Image.asset('assets/images/twitter.png',
@@ -613,21 +438,61 @@ class _HomeState extends State<Home> {
       builder: (context, AsyncSnapshot<StationsBloc> snapshot) {
         return Scaffold(
           drawer: Container(
-            width: screenSize.width * 0.75,
             child: Drawer(
-              child: _buildSideMenu(context, snapshot),
+              child: BuildSideMenu(),
             ),
           ),
-          key: _scaffoldKey,
+          key: scaffoldKey,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Container(
             child: Column(
               children: [
                 Container(
-                  color: Colors.white,
+                  color: Theme.of(context).backgroundColor,
                   child: Column(
                     children: [
-                      _builsAppBar(),
+                      myappBar(),
+                      isSearching ? Container(
+                          margin: EdgeInsets.only(top: 5.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Container(
+                            color: Theme.of(context).backgroundColor,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                                      height: screenSize.height * 0.06,
+                                      child: TextFormField(
+                                        autofocus: true,
+                                        cursorColor: Theme.of(context).iconTheme.color,
+                                        controller: searchController,
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: 'Search by Name',
+                                          hintStyle: TextStyle(
+                                              fontFamily: 'Jost-Regular'
+                                          ),
+                                        ),
+                                        onChanged: (val){
+                                          print('Searching...');
+
+                                        },
+                                      ),
+                                    )
+                                ),
+                                Container(
+                                  width: screenSize.width * 0.10,
+                                  height: screenSize.height * 0.06,
+                                  color: Colors.green,
+                                  child: SvgPicture.asset('assets/images/search.svg',
+                                      fit: BoxFit.none,
+                                      color: Colors.white),
+                                )
+                              ],
+                            ),
+                          )
+                      ): Container(),
                       _buildTabBar(),
                     ],
                   )
@@ -649,4 +514,6 @@ class _HomeState extends State<Home> {
       }
     );
   }
+
+
 }

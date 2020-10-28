@@ -36,7 +36,7 @@ class _FavouriteChannelsState extends State<FavouriteChannels> {
             padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
             child: Card(
               margin: EdgeInsets.only(bottom: 5.0),
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               child: Container(
                 padding: EdgeInsets.all(10.0),
                 child: Row(
@@ -59,12 +59,12 @@ class _FavouriteChannelsState extends State<FavouriteChannels> {
                         width: screenSize.width * 0.1,
                         child: CircleAvatar(
                           radius: screenSize.width / 20,
-                          backgroundColor: Theme.of(context).buttonColor,
+                          backgroundColor: Colors.green,
                           child: CircleAvatar(
-                            backgroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).buttonColor,
                             radius: screenSize.width / 22,
                             child: stationsBloc.isPlaying && _favouriteStations[index].id == stationsBloc.currentPlayingStation.id ? 
-                              Icon(Icons.pause, color: Theme.of(context).buttonColor, size: screenSize.width / 20): 
+                              Icon(Icons.pause, color: Theme.of(context).iconTheme.color, size: screenSize.width / 20):
                               SvgPicture.asset('assets/images/play-button.svg'),
                           ),
                         )
@@ -81,7 +81,7 @@ class _FavouriteChannelsState extends State<FavouriteChannels> {
                                 fontSize: screenSize.width / 25,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Jost-Regular',
-                                color: Color.fromRGBO(24, 35, 82, 1)
+                                // color: Color.fromRGBO(24, 35, 82, 1)
                               )
                             ),
                           ),
@@ -97,15 +97,35 @@ class _FavouriteChannelsState extends State<FavouriteChannels> {
                       ),
                     ),
                     Container(
-                      width: screenSize.width * 0.1,
-                      child: GestureDetector(
-                        onTap: (){
-                          stationsBloc.updateFavourites(_favouriteStations[index]);
-                        },
-                        child: Image.asset('assets/images/favourite.png',
-                          height: screenSize.width / 20,
-                          color: Color.fromRGBO(137, 149, 183, 1)
-                        ),
+                      width: screenSize.width * 0.15,
+                      child: Row(
+                        children: [
+                          stationsBloc.isPlaying && _favouriteStations[index].id == stationsBloc.currentPlayingStation.id ?Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0,10,0),
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15.0),
+                                child: ColorFiltered(child: Image.asset('assets/images/musicEQ.gif',
+                                  height: screenSize.height / 40,
+                                  width: screenSize.width / 15,
+                                  fit: BoxFit.cover,
+                                  filterQuality: FilterQuality.low, ),
+                                  colorFilter: ColorFilter.mode(Colors.pink[300], BlendMode.modulate),
+                                )
+                            ),
+                          ):Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 10,0),
+                            child: SizedBox(width: screenSize.width / 15),
+                          ),
+                          GestureDetector(
+                            onTap: (){
+                              stationsBloc.updateFavourites(_favouriteStations[index]);
+                            },
+                            child: Image.asset('assets/images/favourite.png',
+                              height: screenSize.width / 20,
+                              color: Color.fromRGBO(137, 149, 183, 1)
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   ],

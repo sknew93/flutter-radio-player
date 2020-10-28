@@ -20,6 +20,7 @@ dependencies:
   flutter_svg: ^0.18.0
   flushbar: ^1.10.4
   shared_preferences: ^0.5.8
+  provider: ^4.3.2+2
   url_audio_stream: ^1.0.0+3
 
 dev_dependencies:
@@ -32,6 +33,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/musicEQ.gif
     - assets/images/favourite.png
     - assets/images/filters.svg
     - assets/images/play-button.svg
